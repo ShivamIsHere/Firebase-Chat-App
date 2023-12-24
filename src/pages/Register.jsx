@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { RxAvatar } from "react-icons/rx";
-import {createUserWithEmailAndPassword } from "firebase/auth";
-import {auth} from "../firebase"
+import {createUserWithEmailAndPassword , updateProfile} from "firebase/auth";
+import {auth,storage} from "../firebase"
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 const Register = () => {
-  
+  const [err,setErr] = useState(false);
 
   const handleSubmit=async (e)=>{
       e.preventDefault()
@@ -13,8 +14,31 @@ const Register = () => {
       const password=e.target[2].value;
       const file=e.target[3].files[0];
 
-      const res=await createUserWithEmailAndPassword(auth, email, password)
-        
+      try{
+      const res= await createUserWithEmailAndPassword(auth, email, password);
+
+const storageRef = ref(storage, displayName);
+
+const uploadTask = uploadBytesResumable(storageRef, file);
+
+// Register three observers:
+uploadTask.on(
+
+  (error) => {
+    setErr(true);
+  }, 
+  () => {
+     getDownloadURL(uploadTask.snapshot.ref).then( async (downloadURL) => {
+      await updateProfile(res,user,{
+        displayName,
+        photoURL:downloadURL,
+      });
+    });
+  }
+);
+      }catch(err){
+        setErr(true);
+      } 
   }
 
 
@@ -36,6 +60,7 @@ const Register = () => {
             <spam>Select An Avatar</spam>
             </label>
             <button>Sign Up</button>
+            {err && <spam>Something went wrong</spam>}
 
         </form>
         <p>You do have an account? Log in</p>

@@ -19,9 +19,9 @@ function App() {
           <Route
             index
             element={
-              <ProtectedRoute>
+              // <ProtectedRoute>
                 <Home />
-              </ProtectedRoute>
+              /* </ProtectedRoute> */
             }
           />
           <Route path="login" element={<Login />} />

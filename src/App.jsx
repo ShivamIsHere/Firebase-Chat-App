@@ -4,13 +4,20 @@ import './App.css'
 import Register from './pages/Register'
 import Login from './pages/Login'
 import Home from './pages/Home'
-import { BrowserRouter,Routes,Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthContext } from './context/AuthContext'
 
 function App() {
   const [count, setCount] = useState(0);
   const {currentUser}=useContext(AuthContext)
   console.log(currentUser);
+  const ProtectedRoute = ({ children }) => {
+    if (!currentUser) {
+      return <Navigate to="/login" />;
+    }
+
+    return children
+  };
 
   return (
     // <Register/>
@@ -22,9 +29,9 @@ function App() {
           <Route
             index
             element={
-              // <ProtectedRoute>
+              <ProtectedRoute>
                 <Home />
-              /* </ProtectedRoute> */
+              </ProtectedRoute> 
             }
           />
           <Route path="login" element={<Login />} />

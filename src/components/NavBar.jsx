@@ -1,5 +1,7 @@
+import { signOut } from 'firebase/auth';
 import React from 'react'
 import { RxAvatar } from "react-icons/rx";
+import { auth } from '../firebase';
 
 const NavBar = () => {
   return (
@@ -8,7 +10,7 @@ const NavBar = () => {
       <div className="user">
       <img src='https://images.pexels.com/photos/104827/cat-pet-animal-domestic-104827.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1' alt=''/>
       <spam>Shivam</spam>
-      <button>Logout</button>
+      <button onClick={()=>signOut(auth)}>Logout</button>
       </div>
       
     </div>

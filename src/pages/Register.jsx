@@ -1,13 +1,16 @@
 import React, { useState } from 'react'
 import { RxAvatar } from "react-icons/rx";
 import {createUserWithEmailAndPassword , updateProfile} from "firebase/auth";
-import {auth,storage} from "../firebase"
+import {auth,db,storage} from "../firebase"
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { doc, setDoc } from "firebase/firestore"; 
+import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
   const [err,setErr] = useState(false);
+  const navigate=useNavigate();
 
-  const handleSubmit=async (e)=>{
+  const handleSubmit= async(e)=>{
       e.preventDefault()
       const displayName=e.target[0].value;
       const email=e.target[1].value;
@@ -15,7 +18,11 @@ const Register = () => {
       const file=e.target[3].files[0];
 
       try{
-      const res= await createUserWithEmailAndPassword(auth, email, password);
+      const res= await createUserWithEmailAndPassword(auth, email, password)
+      // .then ((userCredential)=>{
+      //   const user = userCredential.user;
+      //   console.log(user)
+      // })
 
 const storageRef = ref(storage, displayName);
 
@@ -29,13 +36,24 @@ uploadTask.on(
   }, 
   () => {
      getDownloadURL(uploadTask.snapshot.ref).then( async (downloadURL) => {
-      await updateProfile(res,user,{
+      await updateProfile(res.user,{
         displayName,
         photoURL:downloadURL,
       });
+      //user data
+      await setDoc(doc(db, "users", res.user.uid),{
+        uid: res.user.uid,
+        displayName,
+        email,
+        photoURL: downloadURL,
+      });
+      await setDoc(doc(db, "userChats", res.user.uid),{});
+      navigate("/")
     });
   }
 );
+
+  
       }catch(err){
         setErr(true);
       } 
